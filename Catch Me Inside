@@ -1,0 +1,89 @@
+definition(
+    name: "Local Tracker IIII",
+    namespace: "None",
+    author: "Ethan",
+    description: "Turn on a virtual switches that corelate to your room location ",
+    category: "Green Living",
+    iconUrl: "http://i.imgur.com/HU0ANBp.png",
+    iconX2Url: "http://i.imgur.com/HU0ANBp.png",
+    iconX3Url: "http://i.imgur.com/HU0ANBp.png",
+    )
+
+
+
+preferences {
+	section("Please Select the Switch for the Bed Location") {
+    	input "bedSwitch", "capability.switch"
+        }
+	section("Please Select the Switch for the Desk Location") {
+    	input "deskSwitch", "capability.switch"
+        }
+	section("Please Select the Switch for the Bathroom Location") {
+    	input "bathroomSwitch", "capability.switch"
+        }
+	section("Please Select the Switch for the Kitchen Location") {
+    	input "kitchenSwitch", "capability.switch"
+        }
+}
+
+
+def installed() {
+    log.debug "Installed with settings: ${settings}"
+    initialize()
+}
+
+
+def updated() {
+    log.debug "Updated with settings: ${settings}"
+    initialize()
+}
+
+
+def initialize() {
+    runEvery1Minute(roomHandler)
+}
+
+
+def whatRoom() {
+    
+    def params = [
+    	uri:  'http://ml2.internalpositioning.com/',
+    	path: 'location',
+    	contentType: 'application/json',
+    	query: [group:'monstrousmeerkat', user: 'lozaning']
+	]
+     
+    
+    try {
+        httpGet(params) { resp ->
+        	log.debug "response status code: ${resp.status}"
+            //log.debug "response data: ${resp.data}"
+            log.debug "Data: ${resp.data}"
+            //log.debug "response contentType: ${resp.contentType}"
+            log.debug "room: ${resp.data.users.lozaning[0].location}"
+            //def location = resp.data.users.lozaning[0].location
+            return resp.data.users.lozaning[0].location
+        }
+    } catch (e) {
+        log.error "something went wrong: $e"
+        return
+        
+    }
+	
+    //return location
+    
+}
+
+def roomHandler() {
+	
+    def room = whatRoom()
+    log.debug "Testing: ${room}"
+    if (room == "bed") {
+    	deskSwitch.off()
+        bathroomSwitch.off()
+        kitchenSwitch.off()
+    	bedSwitch.on()
+    	log.debug "Turning the bed switch on"
+        
+    } 
+}
