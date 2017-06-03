@@ -77,13 +77,30 @@ def whatRoom() {
 def roomHandler() {
 	
     def room = whatRoom()
-    log.debug "Testing: ${room}"
+    log.debug "Reported location is: ${room}"
     if (room == "bed") {
-    	deskSwitch.off()
-        bathroomSwitch.off()
-        kitchenSwitch.off()
-    	bedSwitch.on()
-    	log.debug "Turning the bed switch on"
-        
-    } 
+		deskSwitch.off()
+        	bathroomSwitch.off()
+        	kitchenSwitch.off()
+    		bedSwitch.on()
+    		log.debug "Turning the bed switch on"
+	} else if (room == "kitchen") {
+    		deskSwitch.off()
+        	bathroomSwitch.off()
+        	kitchenSwitch.on()
+    		bedSwitch.off()
+        	log.debug "Turning the kitchen switch on"
+	} else if (room == "desk") {
+    		deskSwitch.on()
+        	bathroomSwitch.off()
+        	kitchenSwitch.off()
+    		bedSwitch.off()
+        	log.debug "Turning the desk switch on"
+	} else if (room == "bathroom") {
+    		deskSwitch.off()
+        	bathroomSwitch.off()
+        	kitchenSwitch.on()
+    		bedSwitch.off()
+        	log.debug "Turning the kitchen switch on"
+    	}
 }
