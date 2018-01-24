@@ -1,0 +1,91 @@
+definition(
+    name: "Miner Monitot",
+    namespace: "None",
+    author: "Ethan",
+    description: "Turn on a virtual switches that corelate to your room location ",
+    category: "Green Living",
+    iconUrl: "http://i.imgur.com/HU0ANBp.png",
+    iconX2Url: "http://i.imgur.com/HU0ANBp.png",
+    iconX3Url: "http://i.imgur.com/HU0ANBp.png",
+    )
+
+
+//complete from here
+preferences {
+	section("Please Select the Switch for Mean Bit") {
+    	input "MeanBit", "capability.switch"
+        }
+        
+       section("Send Notifications?") {
+        input("recipients", "contact", title: "Send notifications to") {
+            input "phone", "phone", title: "Warn with text message (optional)",
+                description: "Phone Number", required: false
+        }
+    }
+}
+
+//complete to here
+        
+
+
+
+def installed() {
+    log.debug "Installed with settings: ${settings}"
+    initialize()
+}
+
+
+def updated() {
+    log.debug "Updated with settings: ${settings}"
+    initialize()
+}
+
+
+def initialize() {
+    runEvery5Minutes(MinerCycle)
+}
+
+
+def MinerCheck() {
+    
+   def cmd = "http://dwarfpool.com/eth/api?wallet=643c7350F89c9257a180c6c584435E6C1296a271&email=lozaning@gmail.com";
+   log.debug "Sending request cmd[${cmd}]"
+   httpGet(cmd) { resp ->
+        if (resp.data) {
+        	//log.debug "${resp.data}"
+            def total_hashrate = resp.data.total_hashrate
+            //log.debug "Total Hashrate ${total_hashrate}"
+            def MeanBit_Hashrate = resp.data.workers."Rig2-MeanBit".hashrate
+            log.debug "MeanBit_Hashrate ${MeanBit_Hashrate}"
+            return MeanBit_Hashrate
+            }
+		}
+    
+}
+
+def handler() {
+    MeanBit.on()
+   }
+
+def MinerCycle() {
+	
+    def hashrate = MinerCheck()
+    log.debug "Reported location is: ${room}"
+    if (hashrate < 12) {
+		MeanBit.off()
+        	
+    		log.debug "Turning the rig off"
+            runIn(10. handler)
+            
+    	def message = "Mean Bit is Down!"
+    if (location.contactBookEnabled && recipients) {
+        log.debug "Contact Book enabled!"
+        sendNotificationToContacts(message, recipients)
+    } else {
+        log.debug "Contact Book not enabled"
+        if (phone) {
+            sendSms(phone, message)
+        }
+    }
+	} 
+}
