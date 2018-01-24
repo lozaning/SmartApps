@@ -1,8 +1,8 @@
 definition(
-    name: "Miner Monitot",
+    name: "Miner Monitor",
     namespace: "None",
     author: "Ethan",
-    description: "Turn on a virtual switches that corelate to your room location ",
+    description: "Restart your rig if it stops mining",
     category: "Green Living",
     iconUrl: "http://i.imgur.com/HU0ANBp.png",
     iconX2Url: "http://i.imgur.com/HU0ANBp.png",
@@ -10,7 +10,7 @@ definition(
     )
 
 
-//complete from here
+
 preferences {
 	section("Please Select the Switch for Mean Bit") {
     	input "MeanBit", "capability.switch"
@@ -24,7 +24,7 @@ preferences {
     }
 }
 
-//complete to here
+
         
 
 
